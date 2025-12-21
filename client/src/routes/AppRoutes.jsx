@@ -9,19 +9,54 @@ import Register from '../pages/Register';
 import Login from '../pages/Login';
 import ResetPassword from '../pages/ResetPassword';
 import NotFound from '../pages/NotFound';
+import UserLayOut from '../layout/UserLayOut';
+import PrivateRoute from './PrivateRoute';
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route index element={<Home />}></Route>
-      <Route path="/admission" element={<Admission />}></Route>
-      <Route path="/collegeDetails" element={<CollegeDetails />}></Route>
-      <Route path="/colleges" element={<Colleges />}></Route>
-      <Route path="/myCollege" element={<MyCollege />}></Route>
-      <Route path="/profile" element={<Profile />}></Route>
-      <Route path="/register" element={<Register />}></Route>
-      <Route path="/login" element={<Login />}></Route>
-      <Route path="/resetPassword" element={<ResetPassword />}></Route>
+      <Route path="/" element={<UserLayOut />}>
+        <Route index element={<Home />} />
+        <Route path="/colleges" element={<Colleges />} />
+
+        {/* Private Routes */}
+        <Route
+          path="/college/:id"
+          element={
+            <PrivateRoute>
+              <CollegeDetails />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admission"
+          element={
+            <PrivateRoute>
+              <Admission />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/myCollege"
+          element={
+            <PrivateRoute>
+              <MyCollege />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
+            </PrivateRoute>
+          }
+        />
+      </Route>
+
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/resetPassword" element={<ResetPassword />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

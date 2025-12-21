@@ -1,16 +1,10 @@
-import { BrowserRouter } from 'react-router-dom';
-import './App.css';
 import AppRoutes from './routes/AppRoutes';
+import useObserveAuth from './hooks/useObserveAuth';
 
 function App() {
-  return (
-    <>
-      <BrowserRouter>
-        {' '}
-        <AppRoutes />
-      </BrowserRouter>
-    </>
-  );
+  useObserveAuth();
+
+  return <AppRoutes />;
 }
 
 export default App;

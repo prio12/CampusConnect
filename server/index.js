@@ -19,26 +19,8 @@ mongoose
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log(err));
 
-// Root route
-app.get('/', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    message: 'Server is running',
-    endpoints: {
-      users: '/users',
-      universities: '/universities or other routes from universitiesRoutes',
-    },
-  });
-});
-
 // Routes
 app.use('/', universitiesRoutes);
 app.use('/users', userRoute);
 
-// Only listen if not in production (Vercel handles this)
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
-
-// Export for Vercel serverless
-module.exports = app;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

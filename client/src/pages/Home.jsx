@@ -60,10 +60,10 @@ const Home = () => {
       </section>
 
       {/* ---------------- Graduate Gallery ---------------- */}
-      <GraduateGallery colleges={filteredColleges} />
+      <GraduateGallery colleges={colleges} />
 
       {/* ---------------- Research Papers ---------------- */}
-      <ResearchPapers colleges={filteredColleges} />
+      <ResearchPapers colleges={colleges} />
 
       {/* ---------------- Reviews Section ---------------- */}
       <section className="max-w-7xl mx-auto px-4 py-10">

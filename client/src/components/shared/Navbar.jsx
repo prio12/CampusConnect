@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import Logo from '../../assets/Logo/logo_cc.png';
 import useUserStore from '../../store/useUserStore';
@@ -20,24 +20,28 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth); // Firebase sign out
-      removeUser(); // user: null + loading: false
+      await signOut(auth);
+      removeUser();
     } catch (error) {
       console.error('Sign out failed:', error);
     }
   };
 
   const getAvatar = () => {
-    if (user?.avatar)
+    if (user?.avatar) {
       return (
         <img src={user.avatar} alt="Profile" className="h-8 w-8 rounded-full" />
       );
-    if (user?.name)
+    }
+
+    if (user?.name) {
       return (
         <div className="h-8 w-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
           {user.name.charAt(0).toUpperCase()}
         </div>
       );
+    }
+
     return null;
   };
 
@@ -58,13 +62,17 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex space-x-6 items-center">
             {navLinks.map((link) => (
-              <Link
+              <NavLink
                 key={link.name}
                 to={link.path}
-                className="text-textPrimary hover:text-primary font-medium"
+                className={({ isActive }) =>
+                  isActive
+                    ? 'text-primary font-semibold'
+                    : 'text-textPrimary hover:text-primary font-medium'
+                }
               >
                 {link.name}
-              </Link>
+              </NavLink>
             ))}
 
             {/* Auth / Profile */}
@@ -115,28 +123,32 @@ const Navbar = () => {
       {menuOpen && (
         <div className="md:hidden bg-background px-4 pt-2 pb-3 space-y-1 shadow-md">
           {navLinks.map((link) => (
-            <Link
+            <NavLink
               key={link.name}
               to={link.path}
-              className="block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white transition"
               onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                isActive
+                  ? 'block px-3 py-2 rounded bg-primary text-white font-semibold'
+                  : 'block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white'
+              }
             >
               {link.name}
-            </Link>
+            </NavLink>
           ))}
 
           {user ? (
             <>
               <Link
                 to="/profile"
-                className="block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white transition"
+                className="block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 Profile
               </Link>
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-3 py-2 rounded bg-red-500 text-white hover:bg-red-600 transition"
+                className="w-full text-left px-3 py-2 rounded bg-red-500 text-white hover:bg-red-600"
               >
                 Sign Out
               </button>
@@ -145,14 +157,14 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white transition"
+                className="block px-3 py-2 rounded text-textPrimary hover:bg-primary hover:text-white"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="block px-3 py-2 rounded bg-primary text-white hover:bg-blue-800 transition"
+                className="block px-3 py-2 rounded bg-primary text-white hover:bg-blue-800"
                 onClick={() => setMenuOpen(false)}
               >
                 Sign Up

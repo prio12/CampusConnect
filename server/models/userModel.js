@@ -44,6 +44,7 @@ const userSchema = new Schema(
         {
           college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
           candidateName: String,
+          image: String,
           subject: String,
           candidatePhone: String,
           address: String,

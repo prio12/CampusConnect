@@ -1,5 +1,4 @@
-//external imports
-
+// external imports
 const mongoose = require('mongoose');
 
 const { Schema } = mongoose;
@@ -25,9 +24,22 @@ const uniSchema = new Schema(
     ],
     sports: [String],
     gallery: [String],
-    rating: { type: Number, default: 0 },
+    rating: { type: Number, default: 0 }, // average rating
     numRatings: { type: Number, default: 0 },
     description: String,
+
+    // New reviews array
+    reviews: {
+      type: [
+        {
+          user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          comment: { type: String, required: true },
+          rating: { type: Number, required: true, min: 1, max: 5 },
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,

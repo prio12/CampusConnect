@@ -52,14 +52,42 @@ async function getUser(req, res) {
         .json({ success: false, message: 'UID is required' });
     }
 
-    const user = await User.findOne({ uid })
-      .populate('admissions.college')
-      .populate('reviews.college');
+    const user = await User.findOne({ uid }).lean();
 
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: 'User not found' });
+    }
+
+    // Safe population for admissions
+    if (user.admissions && user.admissions.length > 0) {
+      for (let i = 0; i < user.admissions.length; i++) {
+        const collegeId = user.admissions[i].college;
+        if (collegeId) {
+          try {
+            const college = await University.findById(collegeId).lean();
+            user.admissions[i].college = college || null;
+          } catch {
+            user.admissions[i].college = null;
+          }
+        }
+      }
+    }
+
+    // Safe population for reviews
+    if (user.reviews && user.reviews.length > 0) {
+      for (let i = 0; i < user.reviews.length; i++) {
+        const collegeId = user.reviews[i].college;
+        if (collegeId) {
+          try {
+            const college = await University.findById(collegeId).lean();
+            user.reviews[i].college = college || null;
+          } catch {
+            user.reviews[i].college = null;
+          }
+        }
+      }
     }
 
     return res.status(200).json({
@@ -72,7 +100,60 @@ async function getUser(req, res) {
   }
 }
 
+// Update user info or submit admission
+async function updateUser(req, res) {
+  try {
+    const uid = req.params.id;
+    const updateData = req.body;
+
+    // Find user by uid
+    const user = await User.findOne({ uid });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    if (updateData.admission) {
+      user.admissions.push({
+        college: updateData.admission.college,
+        candidateName: updateData.admission.candidateName,
+        image: updateData.admission.image,
+        subject: updateData.admission.subject,
+        candidatePhone: updateData.admission.candidatePhone,
+        address: updateData.admission.address,
+        dob: updateData.admission.dob,
+      });
+
+      await user.save();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Admission submitted successfully',
+        admissions: user.admissions,
+      });
+    }
+
+    Object.keys(updateData).forEach((key) => {
+      user[key] = updateData[key];
+    });
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'User updated successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
 module.exports = {
   addUser,
   getUser,
+  updateUser,
 };

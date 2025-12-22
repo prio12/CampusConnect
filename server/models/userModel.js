@@ -9,6 +9,10 @@ const userSchema = new Schema(
       required: [true, 'Name is required'],
       trim: true,
     },
+    uid: {
+      type: String,
+      required: [true, 'Name is required'],
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
@@ -20,19 +24,9 @@ const userSchema = new Schema(
       type: String,
       default: '', // profile image URL or placeholder
     },
-    university: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'College',
-      default: null, // user may choose later
-    },
     address: {
       type: String,
       default: '',
-    },
-    myColleges: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'College',
-      default: [], // initially empty
     },
     reviews: {
       type: [
@@ -51,11 +45,9 @@ const userSchema = new Schema(
           college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
           candidateName: String,
           subject: String,
-          candidateEmail: String,
           candidatePhone: String,
           address: String,
           dob: Date,
-          image: String,
           submittedAt: { type: Date, default: Date.now },
         },
       ],

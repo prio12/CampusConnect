@@ -42,6 +42,37 @@ async function addUser(req, res) {
   }
 }
 
+async function getUser(req, res) {
+  try {
+    const { id: uid } = req.params;
+
+    if (!uid) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'UID is required' });
+    }
+
+    const user = await User.findOne({ uid })
+      .populate('admissions.college')
+      .populate('reviews.college');
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+}
+
 module.exports = {
   addUser,
+  getUser,
 };

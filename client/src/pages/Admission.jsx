@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useCollegeStore from '../store/useCollegeStore';
 import useUserStore from '../store/useUserStore';
+import axios from 'axios';
 
 const Admission = () => {
   const { colleges, loading, error, fetchColleges } = useCollegeStore();
-  const { user } = useUserStore();
+  const { user, fetchUser, submitAdmission } = useUserStore();
+
+  const navigate = useNavigate();
 
   const [selectedCollege, setSelectedCollege] = useState(null);
-
   const [formData, setFormData] = useState({
     candidateName: '',
     subject: '',
@@ -23,7 +26,15 @@ const Admission = () => {
     if (colleges.length === 0) fetchColleges();
   }, [colleges.length, fetchColleges]);
 
-  // Populate form from user (DB)
+  // Fetch user if not already loaded
+  useEffect(() => {
+    if (!user) {
+      const uid = localStorage.getItem('uid'); // or get it from your auth
+      if (uid) fetchUser(uid);
+    }
+  }, [user, fetchUser]);
+
+  // Populate form when user is fetched
   useEffect(() => {
     if (user) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -37,6 +48,7 @@ const Admission = () => {
     }
   }, [user]);
 
+  // Handle form changes
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
@@ -45,25 +57,47 @@ const Admission = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // Handle form submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const submissionData = {
-      college: selectedCollege._id,
-      candidateName: formData.candidateName,
-      subject: formData.subject,
-      candidateEmail: formData.email,
-      candidatePhone: formData.phone,
-      address: formData.address,
-      dob: formData.dob,
-      image: formData.image,
-    };
+    if (!selectedCollege || !user) return;
 
-    console.log('Admission Submitted:', submissionData);
+    try {
+      let imageUrl = '';
+      if (formData.image) {
+        // Upload image to ImgBB
+        const imgData = new FormData();
+        imgData.append('image', formData.image);
+        const IMGBB_API_KEY = 'cc0ae089ea4bb60ca3bbca0c2db4e6d3';
+        const imgbbRes = await axios.post(
+          `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+          imgData
+        );
+        imageUrl = imgbbRes.data.data.url;
+      }
 
-    alert('Admission form submitted successfully!');
+      // Prepare admission object
+      const admissionObj = {
+        college: selectedCollege._id,
+        candidateName: formData.candidateName,
+        subject: formData.subject,
+        candidateEmail: formData.email,
+        candidatePhone: formData.phone,
+        address: formData.address,
+        dob: formData.dob,
+        image: imageUrl,
+      };
 
-    setSelectedCollege(null);
+      // Update user (push to admissions array)
+      await submitAdmission(user.uid, admissionObj);
+
+      alert('Admission form submitted successfully!');
+      navigate('/myCollege');
+    } catch (err) {
+      console.error('Admission submission error:', err);
+      alert('Failed to submit admission. Please try again.');
+    }
   };
 
   return (

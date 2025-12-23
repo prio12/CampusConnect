@@ -26,9 +26,9 @@ async function addUser(req, res) {
       uid,
       name,
       email,
+      university: '',
       admissions: [],
       reviews: [],
-      myCollege: [],
     });
 
     return res.status(201).json({
@@ -47,47 +47,30 @@ async function getUser(req, res) {
     const { id: uid } = req.params;
 
     if (!uid) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'UID is required' });
+      return res.status(400).json({
+        success: false,
+        message: 'UID is required',
+      });
     }
 
-    const user = await User.findOne({ uid }).lean();
+    const user = await User.findOne({ uid })
+      .populate({
+        path: 'admissions.university',
+        model: 'University',
+        select: 'name _id',
+      })
+      .populate({
+        path: 'reviews.university',
+        model: 'University',
+        select: 'name _id',
+      })
+      .lean();
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'User not found' });
-    }
-
-    // Safe population for admissions
-    if (user.admissions && user.admissions.length > 0) {
-      for (let i = 0; i < user.admissions.length; i++) {
-        const collegeId = user.admissions[i].college;
-        if (collegeId) {
-          try {
-            const college = await University.findById(collegeId).lean();
-            user.admissions[i].college = college || null;
-          } catch {
-            user.admissions[i].college = null;
-          }
-        }
-      }
-    }
-
-    // Safe population for reviews
-    if (user.reviews && user.reviews.length > 0) {
-      for (let i = 0; i < user.reviews.length; i++) {
-        const collegeId = user.reviews[i].college;
-        if (collegeId) {
-          try {
-            const college = await University.findById(collegeId).lean();
-            user.reviews[i].college = college || null;
-          } catch {
-            user.reviews[i].college = null;
-          }
-        }
-      }
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
     }
 
     return res.status(200).json({
@@ -96,7 +79,10 @@ async function getUser(req, res) {
     });
   } catch (error) {
     console.error('Error getting user:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
   }
 }
 
@@ -117,7 +103,7 @@ async function updateUser(req, res) {
 
     if (updateData.admission) {
       user.admissions.push({
-        college: updateData.admission.college,
+        university: updateData.admission.college,
         candidateName: updateData.admission.candidateName,
         image: updateData.admission.image,
         subject: updateData.admission.subject,

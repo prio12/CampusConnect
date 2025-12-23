@@ -7,6 +7,13 @@ const {
 
 const router = express.Router();
 
+//sample route
+router.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+  });
+});
+
 //get all universities
 router.post('/', addUser);
 

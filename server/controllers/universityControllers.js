@@ -1,5 +1,4 @@
 const University = require('../models/uniModel');
-const User = require('../models/userModel');
 
 //get all uni
 async function getAllUniversities(req, res) {
@@ -18,14 +17,18 @@ async function getAllUniversities(req, res) {
 }
 
 async function updateUniversity(req, res) {
+  console.log(req.params.id);
+  const { userUid, comment, rating } = req.body;
+
+  console.log(userUid, comment, rating);
   try {
     const id = req.params.id;
-    const { userId, comment, rating } = req.body;
+    const { userUid, comment, rating } = req.body;
 
-    if (!userId || !comment || !rating) {
+    if (!userUid || !comment || !rating) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields: userId, comment, rating',
+        message: 'Missing required fields: userUid, comment, rating',
       });
     }
 
@@ -38,18 +41,9 @@ async function updateUniversity(req, res) {
       });
     }
 
-    // Optional: validate user exists
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
-    }
-
     // Add new review
     university.reviews.push({
-      user: userId,
+      user: userUid,
       comment,
       rating,
     });

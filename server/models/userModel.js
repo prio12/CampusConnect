@@ -20,6 +20,7 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    university: String,
     avatar: {
       type: String,
       default: '', // profile image URL or placeholder
@@ -31,7 +32,10 @@ const userSchema = new Schema(
     reviews: {
       type: [
         {
-          college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
+          university: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'University',
+          },
           rating: { type: Number, min: 0, max: 5 },
           comment: String,
           createdAt: { type: Date, default: Date.now },
@@ -42,7 +46,10 @@ const userSchema = new Schema(
     admissions: {
       type: [
         {
-          college: { type: mongoose.Schema.Types.ObjectId, ref: 'College' },
+          university: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'University',
+          },
           candidateName: String,
           image: String,
           subject: String,

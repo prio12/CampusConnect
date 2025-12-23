@@ -57,12 +57,10 @@ async function getUser(req, res) {
       .populate({
         path: 'admissions.university',
         model: 'University',
-        select: 'name _id',
       })
       .populate({
         path: 'reviews.university',
         model: 'University',
-        select: 'name _id',
       })
       .lean();
 
